@@ -1,20 +1,27 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InventarisController;
+use App\Http\Controllers\Admin\KategoriController;
+use App\Http\Controllers\Admin\LokasiController;
+use App\Http\Controllers\Admin\PeminjamanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::resource('inventaris', InventarisController::class);
+    Route::resource('kategori', KategoriController::class);
+    Route::resource('lokasi', LokasiController::class);
+    Route::resource('peminjaman', PeminjamanController::class);
+
+    // Route khusus untuk kembalikan barang
+    Route::post('peminjaman/{peminjaman}/kembalikan', [PeminjamanController::class, 'kembalikan'])
+        ->name('peminjaman.kembalikan');
 });
 
 require __DIR__.'/auth.php';
